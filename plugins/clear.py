@@ -13,3 +13,7 @@ class Clear(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, err):
         await ctx.send("An error occurred while trying to do that!")
+
+
+def setup(bot):
+    bot.add_cog(Clear(bot))
