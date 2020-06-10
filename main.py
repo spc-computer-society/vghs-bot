@@ -75,7 +75,7 @@ async def reloadcog(ctx, cogname):
 #         bot.load_extension(f"plugins.{ext}")
 
 for ext in os.listdir("./plugins"):
-    if ext.endswith(".py"):
+    if ext.endswith(".py") and ext != "__init__.py":
         bot.load_extension(f"plugins.{ext[:-3]}")
 
 
