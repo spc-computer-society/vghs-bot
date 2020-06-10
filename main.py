@@ -47,32 +47,36 @@ def manage_exts(ext, mode):
 @bot.command()
 @commands.check(is_creators)
 async def loadcog(ctx, cogname):
-    await bot.load_extension(f"plugins.{cogname}")
-    manage_exts(cogname, 1)
+    bot.load_extension(f"plugins.{cogname}")
+    # manage_exts(cogname, 1)
     await ctx.message.add_reaction("\U0001f44c")
 
 
 @bot.command()
 @commands.check(is_creators)
 async def unloadcog(ctx, cogname):
-    await bot.unload_extension(f"plugins.{cogname}")
-    manage_exts(cogname, 2)
+    bot.unload_extension(f"plugins.{cogname}")
+    # manage_exts(cogname, 2)
     await ctx.message.add_reaction("\U0001f44c")
 
 
 @bot.command()
 @commands.check(is_creators)
 async def reloadcog(ctx, cogname):
-    await bot.reload_extension(f"plugins.{cogname}")
+    bot.reload_extension(f"plugins.{cogname}")
     await ctx.message.add_reaction("\U0001f44c")
 
 
-with open("data/cogs.json") as file:
-    data = json.load(file)
-    exts_to_load = data["cogs"]
+# with open("data/cogs.json") as file:
+#     data = json.load(file)
+#     exts_to_load = data["cogs"]
+#
+#     for ext in exts_to_load:
+#         bot.load_extension(f"plugins.{ext}")
 
-    for ext in exts_to_load:
-        bot.load_extension(f"plugins.{ext}")
+for ext in os.listdir("plugins"):
+    if ext.endswith(".py"):
+        bot.load_extension(f"plugins.{ext[-3]}")
 
 
 bot.run(os.getenv('vghsToken'))
