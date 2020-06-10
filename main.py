@@ -14,7 +14,7 @@ import asyncpg
 async def _get_prefix(bot, message):
     return ["?", "!"]
 
-bot = commands.Bot(command_prefix=_get_prefix)
+bot = commands.Bot(command_prefix=["?", "!"])
 
 
 @bot.event
@@ -76,7 +76,7 @@ async def reloadcog(ctx, cogname):
 
 for ext in os.listdir("./plugins"):
     if ext.endswith(".py"):
-        bot.load_extension(f"plugins.{ext[-3]}")
+        bot.load_extension(f"plugins.{ext[:-3]}")
 
 
 bot.run(os.getenv('vghsToken'))
