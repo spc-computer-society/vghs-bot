@@ -8,7 +8,7 @@ class Clear(commands.Cog):
     @commands.command()
     async def clear(self, ctx, limit: int = 5):
         await ctx.channel.purge(limit=limit + 1)
-        await ctx.send("Bye!")
+        await ctx.send("Bye!",delete_after=2)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, err):
