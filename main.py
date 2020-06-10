@@ -35,4 +35,4 @@ async def loadcog(ctx, cogname):
     pass
 
 
-bot.run("abc")
+bot.run(os.getenv('vghsToken'))
