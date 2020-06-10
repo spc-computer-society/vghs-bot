@@ -3,6 +3,7 @@ import sys
 import re
 import datetime
 import asyncio
+import json
 
 import discord
 from discord.ext import commands, tasks
@@ -11,7 +12,7 @@ import asyncpg
 
 
 async def _get_prefix(bot, message):
-    pass  # Do something here to get prefix.
+    return ["?", "!"]
 
 bot = commands.Bot(command_prefix=_get_prefix)
 
@@ -29,10 +30,49 @@ async def is_creators(ctx):
     return ctx.author.id in (586790522157531136, 398035250648711169, 645570536138735618)
 
 
+def manage_exts(ext, mode):
+    with open("data/cogs.json") as file:
+        data = json.load(file)
+
+    if mode == 1:
+        data["cogs"].append(ext)
+
+    elif mode == 2:
+        data["cogs"].remove(ext)
+
+    with open("data/cogs.json", "w") as file:
+        json.dump(data, file, indent=2)
+
+
 @bot.command()
 @commands.check(is_creators)
 async def loadcog(ctx, cogname):
-    pass
+    await bot.load_extension(f"plugins.{cogname}")
+    manage_exts(cogname, 1)
+    await ctx.message.add_reaction("\U0001f44c")
+
+
+@bot.command()
+@commands.check(is_creators)
+async def unloadcog(ctx, cogname):
+    await bot.unload_extension(f"plugins.{cogname}")
+    manage_exts(cogname, 2)
+    await ctx.message.add_reaction("\U0001f44c")
+
+
+@bot.command()
+@commands.check(is_creators)
+async def reloadcog(ctx, cogname):
+    await bot.reload_extension(f"plugins.{cogname}")
+    await ctx.message.add_reaction("\U0001f44c")
+
+
+with open("data/cogs.json") as file:
+    data = json.load(file)
+    exts_to_load = data["cogs"]
+
+    for ext in exts_to_load:
+        bot.load_extension(f"plugins.{ext}")
 
 
 bot.run(os.getenv('vghsToken'))
