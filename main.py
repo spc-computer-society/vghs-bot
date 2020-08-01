@@ -79,4 +79,8 @@ for ext in os.listdir("./plugins"):
         bot.load_extension(f"plugins.{ext[:-3]}")
 
 
-bot.run(os.getenv('vghsToken'))
+with open("token.txt") as file:
+    token = file.read()
+
+bot.run(token)
+#bot.run(os.getenv('vghsToken'))

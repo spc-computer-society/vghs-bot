@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 import datetime
+import traceback
 
 from typing import Union
 
@@ -63,7 +64,9 @@ class Moderation(commands.Cog):
         await ctx.message.add_reaction("\U0001f44c")
 
     @commands.command()
-    async def userinfo(self, ctx, member: Union[discord.Member, discord.User] = None):
+    async def userinfo(self, ctx, member: discord.Member = None):
+        if not member:
+            member = ctx.author
         if isinstance(member, discord.Member):
             embed = discord.Embed(title=f"User: {member}",
                                   description=f"User in current guild: True")
@@ -84,7 +87,7 @@ class Moderation(commands.Cog):
             embed.add_field(name="Created account",
                             value=member.created_at.strftime("%Y %m %d %H:%M:%S"))
 
-            roles = member.roles.reverse()
+            roles = reversed(member.roles[1:])
             output_roles = []
             for index, role in enumerate(roles):
                 if index > 2:
@@ -99,8 +102,16 @@ class Moderation(commands.Cog):
                             value=str(member.bot),
                             inline=False)
 
+            is_nitro = member.premium_since
+            if not is_nitro:
+                is_nitro = False
+            else:
+                is_nitro = True
+
             embed.add_field(name="Has nitro:",
-                            value=str((await member.profile()).premium))
+                            value=str(is_nitro))
+
+            await ctx.send(embed=embed)
 
         elif isinstance(member, discord.User):
             embed = discord.Embed(title=f"User: {member}",
@@ -121,13 +132,29 @@ class Moderation(commands.Cog):
                             value=str(member.bot),
                             inline=False)
 
+            is_nitro = member.premium_since
+            if not is_nitro:
+                is_nitro = False
+            else:
+                is_nitro = True
+
             embed.add_field(name="Has nitro:",
-                            value=str((await member.profile()).premium))
+                            value=str(is_nitro))
+
+            await ctx.send(embed=embed)
+
 
         else:
             return await ctx.send("User not found. Please note that the bot cannot see users that do not share a server.")
 
-        await ctx.send(embed=embed)
+
+    @userinfo.error
+    async def userinfo_error(self, ctx, error):
+        if isinstance(error, commands.BadArgument):
+            await ctx.send("User not found. Please note that the bot cannot see users that do not share a server.")
+        else:
+            await ctx.send(error)
+            raise error
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
@@ -142,25 +169,6 @@ class Moderation(commands.Cog):
         embed.add_field(name="Reason",
                         value=self.reason,
                         inline=True)
-
-        channel = self.bot.get_channel(MOD_LOG_CHANNEL_ID)
-        await channel.send(embed=embed)
-
-    @commands.Cog.listener()
-    async def on_member_kick(self, guild, user):
-        embed = discord.Embed(title="Action: Kick",
-                              description=f"Kicked User: {user.mention}",
-                              color=0x000000)
-
-        embed.add_field(name="Mod",
-                        value=self.mod_who_did_it.mention,
-                        inline=True)
-
-        embed.add_field(name="Reason",
-                        value=self.reason,
-                        inline=True)
-
-        embed.set_footer(text=f"{self.time.strftime('%Y %m %d %H:%M:%S')} UTC")
 
         channel = self.bot.get_channel(MOD_LOG_CHANNEL_ID)
         await channel.send(embed=embed)
